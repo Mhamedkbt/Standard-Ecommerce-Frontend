@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 
 
+# --- SECRETS & LOCAL CONFIGURATIONS ---
 .env
