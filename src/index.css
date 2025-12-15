@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar for all browsers */
+.hide-scrollbar {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE & Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari */
+}
+
+
+
+// Use these Tailwind values everywhere:
+bg: bg-slate-950 / bg-slate-900 / bg-white
+cards: rounded-2xl shadow-xl border border-slate-100
+titles: text-2xl font-bold tracking-tight
+buttons: rounded-xl px-5 py-2 font-semibold transition
