@@ -127,7 +127,7 @@ export default function Settings() {
         setIsPasswordChangedSuccessfully(true);
         setTimeout(() => {
           localStorage.removeItem("token");
-          window.location.href = "/login";
+          window.location.replace("/login");
         }, 2000);
       }
     } catch (err) {
@@ -193,7 +193,7 @@ export default function Settings() {
 
             <div>
               <label htmlFor="oldPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                Current Password (Required if changing name or password)
+                Current Password
               </label>
               <input
                 id="oldPassword"
@@ -264,3 +264,5 @@ export default function Settings() {
     </div>
   );
 }
+
+
