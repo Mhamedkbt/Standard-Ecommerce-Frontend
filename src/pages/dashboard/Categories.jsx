@@ -385,5 +385,3 @@ export default function Categories({ refreshKey }) {
         </div>
     );
 }
-
-
