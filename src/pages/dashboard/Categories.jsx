@@ -27,6 +27,7 @@ const normalizeImagePath = (relativePath) => {
 };
 
 export default function Categories({ refreshKey }) { 
+    const [isAdding, setIsAdding] = useState(false);
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [categoryInput, setCategoryInput] = useState("");
@@ -92,36 +93,37 @@ export default function Categories({ refreshKey }) {
     
     // Add category
     const addCategory = async () => {
+        if (isAdding) return; // 🚨 HARD BLOCK
         if (!categoryInput.trim()) return;
-        
-        // 🚨 ADD: Check if an image file was selected
         if (!newImageFile) {
             alert("Please select a category image before adding.");
             return;
         }
-
+    
+        setIsAdding(true); // 🔒 lock
+    
         try {
-            // 🎯 CHANGE: Call API with name and the file object
             const res = await addCategoryApi(
-                categoryInput.trim(), 
+                categoryInput.trim(),
                 newImageFile
             );
-            
-            // Process the returned category data for immediate display
+    
             const newCategory = {
                 ...res.data,
                 imageUrl: normalizeImagePath(res.data.image)
             };
-            
-            setCategories([...categories, newCategory]);
+    
+            setCategories(prev => [...prev, newCategory]);
             setCategoryInput("");
-            setNewImageFile(null); // Clear file input state
-            
+            setNewImageFile(null);
+    
         } catch (err) {
-            console.error("Failed to add category:", err.response?.data || err.message);
-            alert("Failed to add category. Check console for details.");
+            console.error("Failed to add category:", err);
+            alert("Failed to add category.");
+        } finally {
+            setIsAdding(false); // 🔓 unlock
         }
-    };
+    };    
 
     // Save edited category
     const saveEdit = async () => {
@@ -236,12 +238,14 @@ export default function Categories({ refreshKey }) {
                     )}
                     
                     <button
-                        onClick={addCategory}
-                        disabled={!categoryInput.trim() || !newImageFile}
-                        className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition transform hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed mt-3"
-                    >
-                        <i className="fas fa-plus mr-1"></i> Add Category
-                    </button>
+    onClick={addCategory}
+    disabled={isAdding || !categoryInput.trim() || !newImageFile}
+    className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3 rounded-xl
+               disabled:bg-gray-400 disabled:cursor-not-allowed"
+>
+    {isAdding ? "Adding..." : "Add Category"}
+</button>
+
                 </div>
             </div>
 
@@ -381,3 +385,5 @@ export default function Categories({ refreshKey }) {
         </div>
     );
 }
+
+
