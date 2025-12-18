@@ -264,9 +264,9 @@ export default function Categories({ refreshKey }) {
                                 <div className="flex items-center gap-4 flex-1 flex-wrap">
                                     {/* Category Image Display */}
                                     <img 
-                                        src={category.imageUrl || 'https://via.placeholder.com/64?text=No+Image'} 
-                                        alt={category.name} 
-                                        className="w-16 h-16 object-cover rounded-lg border border-gray-300"
+                                     src={category.image} // Cloudinary returns the full URL, use it directly
+                                     alt={category.name} 
+                                     className="w-16 h-16 object-cover rounded-lg"
                                     />
                                     
                                     {editingId === category.id ? (
