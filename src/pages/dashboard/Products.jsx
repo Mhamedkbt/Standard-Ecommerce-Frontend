@@ -125,7 +125,7 @@ export default function Products() {
     const processProductData = useCallback((product) => {
         return {
             ...product,
-            // If the URL is already a full Cloudinary link (starts with http), leave it.
+            // If the URL is already a full Cloudinary link (starts with http), leave it
             // Otherwise (unlikely now), add the BACKEND_URL.
             images: (product.images || []).map(img => 
                 img.startsWith("http") ? img : `${API_URL}${img.startsWith('/') ? '' : '/'}${img}`
