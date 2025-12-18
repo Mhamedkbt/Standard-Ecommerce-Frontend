@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import API_URL from "../../config/api";
 
 
-const BACKEND_URL = API_URL;
 
 // Tailwind utility classes for better styling (YOUR DESIGN)
 const inputClasses = "border border-gray-300 px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 shadow-sm transition w-full";
@@ -41,8 +40,8 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
 
             // **LOGIC RETAINED**: Correctly reconstruct full image URLs for display
             const existingImgs = (product.images || []).map((img, idx) => ({
-                url: img.startsWith("http") ? img : BACKEND_URL + img,
-                file: null,
+                    url: img,
+                    file: null,
                 isExisting: true,
                 isPrimary: idx === 0,
             }));
@@ -131,13 +130,8 @@ reorderedImages
         formData.append("images", img.file);
     });
 
-        await onAdd(
-            formData,
-            allImages.map((url, i) => ({
-                url: url.startsWith("http") ? url : BACKEND_URL + url,
-                isPrimary: i === 0,
-            }))
-        );
+    await onAdd(formData);
+
 
         // ✅ Reset form ONLY after success
         setName("");
