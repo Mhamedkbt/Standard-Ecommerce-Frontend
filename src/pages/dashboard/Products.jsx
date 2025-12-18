@@ -123,28 +123,13 @@ export default function Products() {
      * @returns {object} - Processed product object.
      */
     const processProductData = useCallback((product) => {
-        const BACKEND_URL = API_URL;
-        
-        // Robust image path normalization logic
-        const normalizeImagePath = (img) => {
-            if (!img) return null;
-            if (img.startsWith("http")) return img; 
-            
-            // Normalize path separators
-            let path = img.replace(/\\/g, '/');
-            
-            // If the path starts with '/', use it as is (e.g., /uploads/image.jpg)
-            if (path.startsWith('/')) {
-                return `${BACKEND_URL}${path}`;
-            } 
-            // If it doesn't start with '/', assume it needs a leading slash
-            return `${BACKEND_URL}/${path}`;
-        };
-
         return {
             ...product,
-            // Process and filter out nulls
-            images: (product.images || []).map(normalizeImagePath).filter(url => url),
+            // If the URL is already a full Cloudinary link (starts with http), leave it.
+            // Otherwise (unlikely now), add the BACKEND_URL.
+            images: (product.images || []).map(img => 
+                img.startsWith("http") ? img : `${API_URL}${img.startsWith('/') ? '' : '/'}${img}`
+            ),
             isAvailable: parseBoolean(product.isAvailable), 
             onPromotion: parseBoolean(product.onPromotion), 
         };

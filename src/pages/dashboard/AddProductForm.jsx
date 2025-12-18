@@ -97,13 +97,9 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
 
 const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting || !name || !price) return;
 
-    // 🛑 BLOCK double submit
-    if (isSubmitting) return;
-
-    if (!name || !price) return;
-
-    setIsSubmitting(true); // 🔒 LOCK FORM
+    setIsSubmitting(true);
 
     try {
         const formData = new FormData();
@@ -115,48 +111,41 @@ const handleSubmit = async (e) => {
         formData.append("isAvailable", isAvailable.toString());
         formData.append("onPromotion", onPromotion.toString());
 
+        // Sort so primary is first
         const reorderedImages = [...images].sort((a, b) => b.isPrimary - a.isPrimary);
 
-// ✅ send existing URLs
-const existingImages = reorderedImages
-    .filter(img => img.isExisting)
-    .map(img => img.url);
+        // Send existing Cloudinary URLs
+        const existingUrls = reorderedImages
+            .filter(img => img.isExisting)
+            .map(img => img.url);
+        formData.append("existingImages", JSON.stringify(existingUrls));
 
-formData.append("existingImages", JSON.stringify(existingImages));
+        // Send new files
+        reorderedImages
+            .filter(img => img.file)
+            .forEach(img => formData.append("images", img.file));
 
-// ✅ send NEW files directly
-reorderedImages
-    .filter(img => img.file)
-    .forEach(img => {
-        formData.append("images", img.file);
-    });
+        // ✅ FIX: Create the preview list for the UI update in Products.jsx
+        const imagePreviewsForParent = reorderedImages.map(img => img.url);
 
-        await onAdd(
-            formData,
-            allImages.map((url, i) => ({
-                url: url.startsWith("http") ? url : BACKEND_URL + url,
-                isPrimary: i === 0,
-            }))
-        );
+        // ✅ Pass both to the parent
+        await onAdd(formData, imagePreviewsForParent.map(url => ({ url })));
 
-        // ✅ Reset form ONLY after success
-        setName("");
-        setPrice("");
-        setPreviousPrice(0);
-        setDescription("");
-        setCategory(categories[0]?.name || "");
-        setImages([]);
-        setIsAvailable(true);
-        setOnPromotion(false);
+        if (!product) {
+            // Reset form only if creating new
+            setName("");
+            setPrice("");
+            setImages([]);
+        }
+        onClose();
 
     } catch (err) {
-        console.error("Create product failed:", err);
-        alert("Failed to create product. Try again.");
+        console.error("Submission failed:", err);
+        alert("Error saving product. Check console.");
     } finally {
-        setIsSubmitting(false); // 🔓 UNLOCK FORM
+        setIsSubmitting(false);
     }
 };
-
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/60 backdrop-blur-sm">
