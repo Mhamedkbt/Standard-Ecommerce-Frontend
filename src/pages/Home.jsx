@@ -78,7 +78,7 @@ const CategoryTile = ({ category }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300"></div>
 
             {/* Text Overlay (Bottom aligned, high contrast) */}
-            <div className="absolute bottom-0 left-0 right-0 p-5">
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
                 <h3 className="text-2xl font-bold text-white tracking-wide transition-colors duration-300 group-hover:text-indigo-400 uppercase">
                     {category.name}
                 </h3>
@@ -185,8 +185,14 @@ export default function Home() {
      * Main data fetching effect.
      */
     useEffect(() => {
+        // PRELOAD HERO IMAGE IMMEDIATELY
+        const heroImg = new Image();
+        heroImg.src = "https://images.pexels.com/photos/7679685/pexels-photo-7679685.jpeg";
+
         async function loadData() {
             try {
+                // ⚡️ PERFORMANCE FIX: Start both requests at the same time
+                // This prevents "Waterfall loading" where one waits for the other
                 const [productResponse, categoryResponse] = await Promise.all([
                     getProducts(), 
                     getCategories()
@@ -195,7 +201,7 @@ export default function Home() {
                 const processedProducts = productResponse.data
                     .map(processProductData)
                     .filter(p => p.isAvailable) // Only show available products
-                    .slice(0, 6); // Display max 6 featured products
+                    .slice(0, 8); // Display max 8 featured products for better layout
 
                 const processedCategories = categoryResponse.data.map(processCategoryData);
 
@@ -212,7 +218,7 @@ export default function Home() {
                         errorMessage = "Server Error: The API is currently unreachable or faulty.";
                     }
                 } else {
-                    errorMessage = `Connection Error: Could not reach the server at ${BACKEND_URL}. Please verify the BACKEND_URL and ensure your server is running.`;
+                    errorMessage = `Connection Error: Could not reach the server. Please verify your connection.`;
                 }
 
                 setError(errorMessage);
@@ -243,7 +249,12 @@ export default function Home() {
                 <div className="text-center bg-white p-10 rounded-xl shadow-2xl border border-red-200">
                     <h1 className="text-3xl font-semibold text-red-700 mb-4 tracking-tight">Error Loading Site Data</h1>
                     <p className="text-gray-700 max-w-lg mb-2 font-medium">{error}</p>
-                    <p className="text-sm text-gray-500 mt-4">For connection errors, ensure the server is running on the address specified in the `BACKEND_URL` constant within this file.</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        Try Again
+                    </button>
                 </div>
             </div>
         );
@@ -269,6 +280,7 @@ export default function Home() {
                         height="1080"
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="eager" 
+                        decoding="sync"
                     />
 
                     {/* Dark Overlay for High Contrast */}
