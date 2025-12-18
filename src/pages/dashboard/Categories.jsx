@@ -203,13 +203,14 @@ export default function Categories({ refreshKey }) {
                 </h2>
                 <div className="flex flex-col gap-3">
                     {/* Category Name Input */}
-                    <input
-                        type="text"
-                        placeholder="Category Name (e.g., Electronics)"
-                        value={categoryInput}
-                        onChange={(e) => setCategoryInput(e.target.value)}
-                        className="flex-1 border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-cyan-100 focus:border-cyan-500 shadow-sm transition"
-                    />
+<input
+    type="text"
+    placeholder="Category Name (e.g., Electronics)"
+    value={categoryInput}
+    onChange={(e) => setCategoryInput(e.target.value)}
+    // Added text-gray-900, placeholder-gray-500, and bg-white
+    className="flex-1 border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-cyan-100 focus:border-cyan-500 shadow-sm transition text-gray-900 placeholder-gray-500 bg-white"
+/>
 
                     {/* Image File Input */}
                     <label className="block text-sm font-medium text-gray-700">Category Image (Required)</label>

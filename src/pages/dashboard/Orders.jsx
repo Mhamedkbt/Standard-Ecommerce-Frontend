@@ -99,13 +99,14 @@ export default function Orders() {
             <div className="bg-white p-5 rounded-xl shadow-lg border border-gray-100 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2">
-                        <input
-                            type="text"
-                            placeholder="Search by customer name..."
-                            value={searchName}
-                            onChange={(e) => setSearchName(e.target.value)}
-                            className="border-2 border-gray-200 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 shadow-sm w-full transition"
-                        />
+                    <input
+    type="text"
+    placeholder="Search by customer name..."
+    value={searchName}
+    onChange={(e) => setSearchName(e.target.value)}
+    // Added text-gray-900, placeholder-gray-500, and bg-white
+    className="border-2 border-gray-200 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 shadow-sm w-full transition text-gray-900 placeholder-gray-500 bg-white"
+/>
                     </div>
 
                     <select
