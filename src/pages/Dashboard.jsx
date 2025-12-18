@@ -15,22 +15,28 @@ import api from "../api/axios";
 // 🚨 NEW COMPONENT: Logout Confirmation Modal/Card
 const LogoutConfirmationModal = ({ onConfirm, onCancel }) => {
     return (
-        // Modal Overlay (Fixed position, dark background)
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            {/* Modal Card (White background, centered) */}
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-96 max-w-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Logout</h3>
-                <p className="text-gray-600 mb-6">Are you sure you want to logout of the Admin Dashboard?</p>
-                <div className="flex justify-end space-x-3">
-                    <button
-                        onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
+        // Modal Overlay (Fixed position, dark background, px-4 for mobile spacing)
+        <div className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/60 backdrop-blur-sm">
+            {/* Modal Card (text-center and max-width classes match your reference) */}
+            <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-xs md:max-w-sm text-center">
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">Confirm Logout</h2>
+                
+                <p className="mb-6 text-gray-600">
+                    Are you sure you want to logout of the Admin Dashboard?
+                </p>
+
+                {/* Button Container (flex-between with gap-3 and flex-1 buttons) */}
+                <div className="flex justify-between mt-4 gap-3">
+                    <button 
+                        onClick={onCancel} 
+                        className="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 flex-1 font-semibold transition"
                     >
                         Cancel
                     </button>
-                    <button
-                        onClick={onConfirm}
-                        className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition"
+                    
+                    <button 
+                        onClick={onConfirm} 
+                        className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white flex-1 font-semibold transition"
                     >
                         Logout
                     </button>
@@ -39,7 +45,7 @@ const LogoutConfirmationModal = ({ onConfirm, onCancel }) => {
         </div>
     );
 };
-// 🚨 END NEW COMPONENT
+
 
 export default function Dashboard() {
     const [activePage, setActivePage] = useState("dashboard");
@@ -327,3 +333,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
