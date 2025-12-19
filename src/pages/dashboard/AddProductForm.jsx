@@ -95,57 +95,67 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
         setImages(prev => prev.map((img, i) => ({ ...img, isPrimary: i === idx })));
     };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isSubmitting || !name || !price) return;
-
-    setIsSubmitting(true);
-
-    try {
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("price", price);
-        formData.append("previousPrice", onPromotion ? previousPrice : 0);
-        formData.append("category", category);
-        formData.append("description", description);
-        formData.append("isAvailable", isAvailable.toString());
-        formData.append("onPromotion", onPromotion.toString());
-
-        // Sort so primary is first
-        const reorderedImages = [...images].sort((a, b) => b.isPrimary - a.isPrimary);
-
-        // Send existing Cloudinary URLs
-        const existingUrls = reorderedImages
-            .filter(img => img.isExisting)
-            .map(img => img.url);
-        formData.append("existingImages", JSON.stringify(existingUrls));
-
-        // Send new files
-        reorderedImages
-            .filter(img => img.file)
-            .forEach(img => formData.append("images", img.file));
-
-        // ✅ FIX: Create the preview list for the UI update in Products.jsx
-        const imagePreviewsForParent = reorderedImages.map(img => img.url);
-
-        // ✅ Pass both to the parent
-        await onAdd(formData, imagePreviewsForParent.map(url => ({ url })));
-
-        if (!product) {
-            // Reset form only if creating new
-            setName("");
-            setPrice("");
-            setImages([]);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        // Basic validation
+        if (isSubmitting || !name || !price) return;
+    
+        setIsSubmitting(true);
+    
+        try {
+            const formData = new FormData();
+            
+            // Append standard text fields
+            formData.append("name", name);
+            formData.append("price", price);
+            formData.append("previousPrice", onPromotion ? previousPrice : 0);
+            formData.append("category", category);
+            formData.append("description", description);
+            formData.append("isAvailable", isAvailable.toString());
+            formData.append("onPromotion", onPromotion.toString());
+    
+            // Sort images so that the Primary image is always at index 0
+            const reorderedImages = [...images].sort((a, b) => b.isPrimary - a.isPrimary);
+    
+            // 1. Collect URLs of images that are already on Cloudinary
+            const existingUrls = reorderedImages
+                .filter(img => img.isExisting)
+                .map(img => img.url);
+            
+            // Append existing images as a JSON string
+            formData.append("existingImages", JSON.stringify(existingUrls));
+    
+            // 2. Collect new file objects and append them to the "images" key
+            // This MUST match the @RequestParam("images") in your Spring Boot Controller
+            const newFiles = reorderedImages.filter(img => img.file);
+            
+            newFiles.forEach(img => {
+                formData.append("images", img.file);
+            });
+    
+            // Prepare the preview list for the UI state update (Frontend only)
+            const imagePreviewsForParent = reorderedImages.map(img => ({ url: img.url }));
+    
+            // Send the request via the onAdd prop (which calls your addProduct/updateProduct API)
+            await onAdd(formData, imagePreviewsForParent);
+    
+            if (!product) {
+                // Clear form state only for a new product creation
+                setName("");
+                setPrice("");
+                setImages([]);
+                setDescription("");
+            }
+            
+            onClose();
+    
+        } catch (err) {
+            console.error("Submission failed:", err);
+            alert("Error saving product. Check the network tab in your browser console.");
+        } finally {
+            setIsSubmitting(false);
         }
-        onClose();
-
-    } catch (err) {
-        console.error("Submission failed:", err);
-        alert("Error saving product. Check console.");
-    } finally {
-        setIsSubmitting(false);
-    }
-};
+    };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/60 backdrop-blur-sm">
