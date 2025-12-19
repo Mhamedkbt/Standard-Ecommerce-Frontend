@@ -111,25 +111,27 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
             formData.append("isAvailable", isAvailable.toString());
             formData.append("onPromotion", onPromotion.toString());
     
-            // Sort: Primary first
+            // 1. Sort Primary First
             const reorderedImages = [...images].sort((a, b) => b.isPrimary - a.isPrimary);
     
-            // Filter and clean existing URLs
+            // 2. Fix the Existing URLs logic
+            // We only want the path part if it's already a full URL pointing to our backend
             const existingUrls = reorderedImages
                 .filter(img => img.isExisting)
-                .map(img => img.url);
+                .map(img => {
+                    // If it contains our BACKEND_URL, remove it to send only the relative path
+                    return img.url.replace(BACKEND_URL, "");
+                });
             
-            // Always send a stringified array, even if empty
-            const cleanExisting = JSON.stringify(existingUrls || []);
-            formData.append("existingImages", cleanExisting);
-
-            // Append new files
-            const newFiles = reorderedImages.filter(img => img.file && !img.isExisting);
-            newFiles.forEach(img => {
-                formData.append("images", img.file);
+            formData.append("existingImages", JSON.stringify(existingUrls));
+    
+            // 3. Append New Files
+            reorderedImages.forEach(img => {
+                if (img.file && !img.isExisting) {
+                    formData.append("images", img.file);
+                }
             });
     
-            // Pass to parent
             const previews = reorderedImages.map(img => ({ url: img.url }));
             await onAdd(formData, previews);
     
@@ -141,7 +143,7 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
             onClose();
     
         } catch (err) {
-            console.error("Full Error Object:", err);
+            console.error("Upload Error:", err);
             alert(`Failed: ${err.response?.data?.message || err.message}`);
         } finally {
             setIsSubmitting(false);
