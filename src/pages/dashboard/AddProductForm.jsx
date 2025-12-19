@@ -10,6 +10,35 @@ const selectToggleClasses = "rounded-xl py-3 px-4 border-2 font-semibold cursor-
 const fileInputClasses = "w-full p-3 border-2 border-dashed border-indigo-300 rounded-xl bg-indigo-50 cursor-pointer font-medium text-indigo-700 hover:bg-indigo-100 transition";
 
 
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+const uploadToCloudinary = async (file) => {
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    {
+      method: "POST",
+      body: data,
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Cloudinary upload failed");
+  }
+
+  const json = await res.json();
+  return json.secure_url;
+};
+
+
+
+
+
 export default function AddProductForm({ categories = [], product, onAdd, onClose }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [name, setName] = useState("");
@@ -97,64 +126,52 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isSubmitting || !name || !price) return;
-    
+        if (isSubmitting) return;
         setIsSubmitting(true);
     
         try {
-            const formData = new FormData();
-            formData.append("name", name);
-            formData.append("price", price);
-            formData.append("previousPrice", onPromotion ? previousPrice : 0);
-            formData.append("category", category);
-            formData.append("description", description);
-            formData.append("isAvailable", isAvailable.toString());
-            formData.append("onPromotion", onPromotion.toString());
-    
-            // 1. Sort Primary First
-            const reorderedImages = [...images].sort((a, b) => b.isPrimary - a.isPrimary);
-    
-            // 2. Fix the Existing URLs logic
-            // We only want the path part if it's already a full URL pointing to our backend
-            // But we keep the full URL if it's from Cloudinary (starts with http)
-            const existingUrls = reorderedImages
-                .filter(img => img.isExisting)
-                .map(img => {
-                    // If it contains our BACKEND_URL (local storage), remove it
-                    if (img.url.includes(BACKEND_URL)) {
-                        return img.url.replace(BACKEND_URL, "");
-                    }
-                    // If it's a Cloudinary URL (https://res.cloudinary.com...), keep it as is
-                    return img.url;
-                });
-            
-            formData.append("existingImages", JSON.stringify(existingUrls));
-    
-            // 3. Append New Files
-            reorderedImages.forEach(img => {
-                if (img.file && !img.isExisting) {
-                    formData.append("images", img.file);
+            // 1. Separate existing Cloudinary URLs from new local files
+            // We MAP through the 'images' state to keep the ORDER correct
+            const uploadPromises = images.map(async (img) => {
+                if (img.isExisting) {
+                    return { url: img.url, isPrimary: img.isPrimary }; 
                 }
+                // If it's a new file, upload it to Cloudinary
+                const newUrl = await uploadToCloudinary(img.file);
+                return { url: newUrl, isPrimary: img.isPrimary };
             });
     
-            const previews = reorderedImages.map(img => ({ url: img.url }));
-            await onAdd(formData, previews);
+            const results = await Promise.all(uploadPromises);
     
-            if (!product) {
-                setName("");
-                setPrice("");
-                setImages([]);
-            }
+            // 2. Sort so the Primary image is index 0
+            const sortedUrls = results
+                .sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+                .map(item => item.url);
+    
+            // 3. Prepare the JSON Payload
+            const payload = {
+                name,
+                price: parseFloat(price),
+                previousPrice: onPromotion ? parseFloat(previousPrice) : 0,
+                category,
+                description,
+                isAvailable,
+                onPromotion,
+                images: sortedUrls // Now the first image is definitely the Primary one
+            };
+    
+            // 4. Send to Backend
+            await onAdd(payload);
             onClose();
-    
+            
         } catch (err) {
-            console.error("Upload Error:", err);
-            alert(`Failed: ${err.response?.data?.message || err.message}`);
+            console.error("Submission failed:", err);
+            alert("Upload failed. Check your Cloudinary Preset name or Console.");
         } finally {
             setIsSubmitting(false);
         }
     };
-
+      
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/60 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col gap-5 p-6 md:p-8 relative">
@@ -248,4 +265,4 @@ export default function AddProductForm({ categories = [], product, onAdd, onClos
             </form>
         </div>
     );
-}
+} 

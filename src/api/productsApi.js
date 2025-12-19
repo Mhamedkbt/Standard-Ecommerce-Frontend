@@ -1,24 +1,17 @@
 import api from "./axios";
 
-const getToken = () => localStorage.getItem("token");
-
 export const getProducts = () => api.get("/products");
 
-// FIX 1: Add the missing category endpoint function 
 export const fetchCategories = () => api.get("/categories"); 
 
+// ✅ CHANGED: Removed manual headers. Axios handles JSON by default.
 export const addProduct = (productData) => {
-  return api.post("/products", productData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  return api.post("/products", productData);
 };
 
-export const updateProduct = (id, formData) => {
-  return api.put(`/products/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+// ✅ CHANGED: Removed manual headers. 
+export const updateProduct = (id, productData) => {
+  return api.put(`/products/${id}`, productData);
 };
-
 
 export const deleteProduct = (id) => api.delete(`/products/${id}`);
-
