@@ -11,7 +11,7 @@ const ProductCard = ({ product, isPublic }) => {
   const [added, setAdded] = useState(false);
 
   const handleAdd = (e) => {
-    e.preventDefault(); // Stops link from opening
+    e.preventDefault(); 
 
     if (!product.isAvailable) {
       return alert("This product is currently unavailable.");
@@ -19,7 +19,7 @@ const ProductCard = ({ product, isPublic }) => {
 
     addItem(product, 1, () => {
       setAdded(true);
-      setTimeout(() => setAdded(false), 1500);
+      setTimeout(() => setAdded(false), 2000); 
     });
   };
 
@@ -30,17 +30,25 @@ const ProductCard = ({ product, isPublic }) => {
   return (
     <div className="relative bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transition duration-300 hover:shadow-xl hover:scale-[1.01]">
 
-      {/* Added Toast */}
-      {added && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2  bg-green-500 text-white py-0.5 px-3 rounded-full text-xs font-medium z-50 animate-bounce">
-          Added to Cart!
+      {/* 🚀 PRO TOAST: Elegant Image Overlay */}
+      <div 
+        className={`absolute inset-0 z-40 flex items-center justify-center transition-all duration-300 pointer-events-none ${
+          added ? 'bg-white/80 backdrop-blur-[2px] opacity-100' : 'opacity-0'
+        }`}
+        style={{ height: 'calc(100% - 140px)' }} // Keeps overlay over image area only
+      >
+        <div className={`flex flex-col items-center transition-transform duration-500 ${added ? 'scale-100' : 'scale-50'}`}>
+          <div className="bg-green-500 text-white p-2 rounded-full shadow-lg mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <span className="text-gray-900 font-bold text-sm">Added to Cart</span>
         </div>
-      )}
+      </div>
 
       <Link to={linkUrl} className="block">
         <div className="relative w-full aspect-square overflow-hidden bg-gray-100">
-
-          {/* Product Image */}
           <LazyLoadImage
             src={imageUrl}
             alt={product.name}
@@ -49,17 +57,15 @@ const ProductCard = ({ product, isPublic }) => {
             onError={(e) => (e.target.src = DEFAULT_IMAGE)}
           />
 
-          {/* Promotion Badge */}
           {product.onPromotion && (
-            <span className="absolute top-3 left-3 bg-yellow-400 text-yellow-900 text-xs font-medium px-3 py-1 rounded-full shadow-md z-20">
-              Promo!
+            <span className="absolute top-3 left-3 bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm z-20">
+              Promo
             </span>
           )}
 
-          {/* Unavailable Badge */}
           {!product.isAvailable && ( 
-            <span className="absolute top-3 right-3 bg-red-100 text-xs font-semibold text-red-800 px-3 py-1 rounded-full shadow-sm z-20">
-              Unavailable
+            <span className="absolute top-3 right-3 bg-red-500 text-[10px] font-bold text-white px-3 py-1 rounded-full shadow-sm z-20">
+              Sold Out
             </span>
           )}
         </div>
@@ -67,41 +73,42 @@ const ProductCard = ({ product, isPublic }) => {
 
       <div className="p-4 flex flex-col justify-between">
         <Link to={linkUrl} className="hover:text-indigo-600 transition">
-          <h3
-            className="text-base font-semibold text-gray-900 mb-2 leading-snug line-clamp-2"
-            title={product.name}
-          >
+          <h3 className="text-base font-semibold text-gray-900 mb-2 leading-snug line-clamp-2 min-h-[44px]">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex items-end gap-2 mt-2 pt-1">
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-xl font-extrabold text-indigo-600">
+            {product.price} DH
+          </span>
           {product.onPromotion && (
-            <span className="text-gray-400 line-through font-medium text-sm">
+            <span className="text-gray-400 line-through text-xs">
               {product.previousPrice} DH
             </span>
           )}
-          <span className="text-xl font-extrabold text-green-600">
-            {product.price} DH
-          </span>
         </div>
 
         {product.isAvailable ? (
-  <button
-    onClick={handleAdd}
-    className="mt-4 w-full text-center bg-indigo-500 text-white py-2 rounded-lg font-medium text-sm transition hover:bg-indigo-600 focus:outline-none"
-  >
-    Add To Cart
-  </button>
-) : (
-  <Link
-    to={linkUrl}
-    className="mt-4 w-full text-center bg-indigo-500 text-white py-2 rounded-lg font-medium text-sm transition hover:bg-indigo-600 focus:outline-none"
-  >
-    Read more
-  </Link>
-)}
-
+          <button
+            onClick={handleAdd}
+            disabled={added}
+            className={`mt-4 w-full text-center py-2.5 rounded-lg font-bold text-xs uppercase tracking-widest transition-all duration-300 focus:outline-none ${
+              added 
+              ? 'bg-green-500 text-white' 
+              : 'bg-indigo-600 text-white hover:bg-indigo-600'
+            }`}
+          >
+            {added ? '✓ Success' : 'Add To Cart'}
+          </button>
+        ) : (
+          <Link
+            to={linkUrl}
+            className="mt-4 w-full text-center border border-gray-300 text-gray-600 py-2.5 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-gray-50 transition"
+          >
+            Details
+          </Link>
+        )}
       </div>
     </div>
   );
