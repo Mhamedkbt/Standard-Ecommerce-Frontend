@@ -108,7 +108,7 @@ export default function Orders() {
                             value={searchName}
                             onChange={(e) => setSearchName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearchAction()}
-                            className="w-full h-[46px] border-2 border-gray-100 px-4 pr-10 rounded-xl focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition bg-gray-50/50"
+                            className="w-full h-[46px] border-2 border-gray-100 px-4 pr-10 rounded-xl focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition text-gray-900 placeholder-gray-500 bg-white"
                         />
                         <div onClick={handleSearchAction} className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-indigo-600">
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
