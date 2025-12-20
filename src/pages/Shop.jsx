@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'; // Added useRef
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { getProducts } from '../api/productsApi.js';
 import { getCategories } from '../api/categoriesApi.js';
@@ -25,6 +25,9 @@ export default function ProductListing() {
     const [searchParams] = useSearchParams();
     const initialCategoryId = searchParams.get("categoryId");
     
+    // NEW: Ref for scrolling
+    const productSectionRef = useRef(null);
+
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -97,6 +100,16 @@ export default function ProductListing() {
 
     const resultCount = filteredAndSortedProducts.length;
 
+    // IMPROVED: Click icon to scroll down on mobile
+    const handleSearchIconClick = () => {
+        if (window.innerWidth < 1024) { // Only scroll on Mobile/Tablet
+            productSectionRef.current?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    };
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">
@@ -121,14 +134,27 @@ export default function ProductListing() {
             <main className="container mx-auto px-4 md:px-8 py-10">
                 <header className="text-center mb-10 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                     <h1 className="text-3xl font-bold text-gray-800 tracking-tight mb-4">All Products</h1>
-                    <input
-                        type="search"
-                        placeholder="Search products by name..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full max-w-2xl border border-gray-300 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-gray-900 placeholder-gray-500 bg-white"
-                        aria-label="Search products"
-                    />
+                    
+                    <div className="relative w-full max-w-2xl mx-auto">
+                        <input
+                            type="search"
+                            placeholder="Search products by name..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            // On "Enter" key, scroll down too
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearchIconClick()}
+                            className="w-full border border-gray-300 px-4 py-3 pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-gray-900 placeholder-gray-500 bg-white"
+                            aria-label="Search products"
+                        />
+                        <div 
+                            onClick={handleSearchIconClick}
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-indigo-600 transition-colors"
+                        >
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -158,7 +184,8 @@ export default function ProductListing() {
                         </div>
                     </aside>
                     
-                    <section className="lg:col-span-3">
+                    {/* NEW: Attached the ref here to know where to scroll */}
+                    <section ref={productSectionRef} className="lg:col-span-3">
                         <div className="flex justify-between items-center mb-6 border-b pb-4">
                             <p className="text-gray-600">Showing <span className="text-indigo-600 font-medium">{resultCount}</span> matching products</p>
                             <select 
