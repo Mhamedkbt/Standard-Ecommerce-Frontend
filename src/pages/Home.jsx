@@ -12,7 +12,7 @@ import Footer from '../components/Footer.jsx';
 import API_URL from "../config/api";
 
 // =========================================================================
-// ⚡️ UTILITIES (Optimized for Production)
+// ⚡️ UTILITIES
 // =========================================================================
 const getFullImageUrl = (path) => {
     if (!path) return null;
@@ -22,35 +22,34 @@ const getFullImageUrl = (path) => {
 };
 
 // =========================================================================
-// 🌟 PRO SUB-COMPONENTS
+// 🌟 SUB-COMPONENTS
 // =========================================================================
 
 const CategoryTile = ({ category }) => (
     <Link
         to={`/shop?categoryId=${category.id}`}
-        className="group relative block h-80 overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all duration-500 hover:shadow-2xl"
+        className="group relative block h-72 overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-all duration-500 hover:shadow-xl"
     >
         <LazyLoadImage
             src={getFullImageUrl(category.image?.path || category.image)}
             alt={category.name}
             effect="blur"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 p-6">
-            <h3 className="text-xl font-bold text-white uppercase tracking-tighter">{category.name}</h3>
-            <p className="text-sm text-indigo-300 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">Explore Collection →</p>
+            <h3 className="text-lg font-semibold text-white tracking-wide uppercase">{category.name}</h3>
+            {/* Now always visible as requested */}
+            <p className="text-xs text-indigo-300 font-medium mt-1">Explore Collection →</p>
         </div>
     </Link>
 );
 
 const Feature = ({ icon, title, desc }) => (
-    <div className="group p-8 rounded-2xl bg-gray-50 border border-transparent hover:border-indigo-100 hover:bg-white hover:shadow-xl transition-all duration-300">
-        <div className="w-12 h-12 mb-6 flex items-center justify-center rounded-xl bg-indigo-600 text-white text-xl group-hover:scale-110 transition-transform">
-            <i className={icon}></i>
-        </div>
+    <div className="p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+        <i className={`${icon} text-3xl text-indigo-600 mb-4 block`}></i>
         <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-500 leading-relaxed">{desc}</p>
+        <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
     </div>
 );
 
@@ -63,7 +62,6 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // ⚡️ Data Processing (Fixes the "Broken Image" issue)
     const transformProduct = useCallback((p) => ({
         ...p,
         images: (p.images || []).map(img => ({
@@ -77,13 +75,12 @@ export default function Home() {
         const loadPageData = async () => {
             try {
                 const [resProd, resCat] = await Promise.all([getProducts(), getCategories()]);
-                
                 setData({
                     products: resProd.data.map(transformProduct).filter(p => p.isAvailable).slice(0, 8),
-                    categories: resCat.data.slice(0, 4)
+                    categories: resCat.data
                 });
             } catch (err) {
-                setError("Unable to connect to the store. Please try again.");
+                setError("Connection error. Please refresh the page.");
             } finally {
                 setLoading(false);
             }
@@ -93,7 +90,7 @@ export default function Home() {
 
     if (loading) return (
         <div className="h-screen flex items-center justify-center bg-white">
-            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
     );
 
@@ -101,74 +98,83 @@ export default function Home() {
         <div className="min-h-screen bg-white text-gray-900 antialiased">
             <Navbar />
 
-            {/* 🚀 PRO HERO SECTION */}
-            <section className="relative px-4 pt-6 pb-12 md:px-8">
-                <div className="relative h-[600px] md:h-[750px] w-full overflow-hidden rounded-[2rem] bg-gray-900 shadow-3xl">
+            {/* 🚀 REFINED HERO SECTION (Minimalist & Clean) */}
+            <section className="container mx-auto px-4 md:px-8 py-10">
+                <div className="relative h-[550px] w-full overflow-hidden rounded-3xl bg-gray-900 shadow-2xl">
                     <img 
                         src="https://images.pexels.com/photos/7679685/pexels-photo-7679685.jpeg" 
-                        className="absolute inset-0 h-full w-full object-cover object-center opacity-60 transition-scale duration-[10s] hover:scale-110" 
-                        alt="Premium Banner"
+                        className="absolute inset-0 h-full w-full object-cover opacity-70" 
+                        alt="Hero"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-black/30" />
                     
-                    <div className="relative z-10 flex h-full flex-col justify-center px-8 md:px-20 lg:w-2/3">
-                        <span className="mb-4 inline-block text-sm font-bold uppercase tracking-[0.3em] text-indigo-400">New Season 2025</span>
-                        <h1 className="mb-6 text-5xl font-black leading-[1.1] text-white md:text-7xl lg:text-8xl tracking-tighter">
-                            QUALITY <br /> WITHOUT <br /> <span className="text-indigo-500">COMPROMISE.</span>
+                    <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-6">
+                        <p className="mb-4 text-xs font-bold uppercase tracking-[0.4em] text-indigo-400">Premium Essentials</p>
+                        <h1 className="mb-6 text-4xl md:text-6xl font-light text-white tracking-tight leading-tight max-w-3xl">
+                            The New Standard of <span className="font-semibold text-white">Modern Living</span>
                         </h1>
-                        <p className="mb-10 max-w-lg text-lg text-gray-300 md:text-xl font-light leading-relaxed">
-                            Experience the intersection of luxury and performance. Hand-curated essentials for the modern lifestyle.
+                        <p className="mb-8 max-w-xl text-base text-gray-200 font-light">
+                            Discover our curated selection of high-performance products designed for those who value quality above all else.
                         </p>
-                        <div className="flex flex-wrap gap-4">
-                            <Link to="/shop" className="rounded-full bg-indigo-600 px-10 py-4 text-center text-lg font-bold text-white transition-all hover:bg-indigo-700 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-                                Shop Collection
-                            </Link>
-                            <Link to="/featured" className="rounded-full bg-white/10 backdrop-blur-md border border-white/20 px-10 py-4 text-center text-lg font-bold text-white transition-all hover:bg-white/20">
-                                View Lookbook
-                            </Link>
-                        </div>
+                        <Link to="/shop" className="rounded-full bg-indigo-600 px-12 py-4 text-sm font-bold text-white transition-all hover:bg-indigo-700 shadow-lg">
+                            Shop Now
+                        </Link>
                     </div>
                 </div>
             </section>
 
             <main className="container mx-auto px-4 md:px-8">
                 
+                <hr className="my-16 border-gray-50" />
+
                 {/* 🌟 COLLECTIONS */}
-                <section className="py-20">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                        <div>
-                            <h2 className="text-4xl font-black tracking-tight text-gray-900 uppercase">The Directory</h2>
-                            <p className="text-gray-500 mt-2">Browse our high-end curated categories.</p>
+                <section className="py-10">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Collections</h2>
+                        <p className="text-gray-500 mt-2">Explore products by category</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {data.categories.slice(0, 4).map(cat => <CategoryTile key={cat.id} category={cat} />)}
+                    </div>
+
+                    {/* View All Collections - Moved to Bottom only */}
+                    {data.categories.length > 4 && (
+                        <div className="mt-10 text-center">
+                            <Link to="/categories" className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors border-b border-indigo-200 pb-1">
+                                View All Collections →
+                            </Link>
                         </div>
-                        <Link to="/categories" className="text-indigo-600 font-bold border-b-2 border-indigo-600 pb-1 hover:text-indigo-800 transition-colors">View All Collections</Link>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {data.categories.map(cat => <CategoryTile key={cat.id} category={cat} />)}
-                    </div>
+                    )}
                 </section>
 
+                <hr className="my-16 border-gray-50" />
+
                 {/* 🛍 FEATURED PRODUCTS */}
-                <section className="py-20 border-t border-gray-100">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-black tracking-tight uppercase mb-4">New Arrivals</h2>
-                        <div className="h-1.5 w-20 bg-indigo-600 mx-auto rounded-full"></div>
+                <section className="py-10">
+                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-12 text-center text-indigo-800">Featured Arrivals</h2>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+                        {data.products.map(p => (
+                            <ProductCard key={p.id} product={p} isPublic={true} />
+                        ))}
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                        {data.products.map(p => <ProductCard key={p.id} product={p} isPublic={true} />)}
-                    </div>
-                    <div className="mt-20 text-center">
-                        <Link to="/shop" className="inline-block rounded-full border-2 border-gray-900 px-12 py-4 text-lg font-black uppercase transition-all hover:bg-gray-900 hover:text-white">
-                            View Full Inventory
+
+                    <div className="mt-16 text-center">
+                        <Link to="/shop" className="inline-block rounded-full bg-gray-900 px-10 py-3 text-sm font-bold text-white transition-all hover:bg-black">
+                            Browse All Products
                         </Link>
                     </div>
                 </section>
 
+                <hr className="my-16 border-gray-50" />
+
                 {/* --- WHY US --- */}
-                <section className="py-24 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <Feature icon="fa-solid fa-bolt" title="Express Logistics" desc="Domestic orders delivered within 48 hours with premium tracking." />
-                        <Feature icon="fa-solid fa-gem" title="Pure Quality" desc="Every item undergoes a 5-point inspection before reaching your door." />
-                        <Feature icon="fa-solid fa-fingerprint" title="Secure Privacy" desc="Military-grade encryption for all transactions and user data." />
+                <section className="py-16">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <Feature icon="fa-solid fa-truck" title="Fast Shipping" desc="Global logistics ensuring your products arrive safely and on schedule." />
+                        <Feature icon="fa-solid fa-check-circle" title="Quality Guaranteed" desc="Every product in our inventory is hand-picked for durability and style." />
+                        <Feature icon="fa-solid fa-lock" title="Secure Payment" desc="Your data security is our priority. All transactions are fully encrypted." />
                     </div>
                 </section>
             </main>
