@@ -47,97 +47,86 @@ const parseBoolean = (value) => {
 
 const ProductImageGallery = ({ images, activeImage, setActiveImage, productName }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isFading, setIsFading] = useState(false);
 
     if (!images || images.length === 0) {
         return (
-            <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center border border-dashed border-gray-200">
-                <span className="text-gray-400 font-medium">No Images Available</span>
+            <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                <span className="text-gray-500">No Images Available</span>
             </div>
         );
     }
 
-    // Smooth transition handler
-    const changeImage = (index) => {
-        setIsFading(true);
-        setTimeout(() => {
-            setCurrentIndex(index);
-            setActiveImage(images[index].url);
-            setIsFading(false);
-        }, 200); // Short delay for the fade effect
-    };
-
     const handlePrev = () => {
-        const index = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-        changeImage(index);
+        setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+        setActiveImage(images[currentIndex === 0 ? images.length - 1 : currentIndex - 1].url);
     };
 
     const handleNext = () => {
-        const index = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
-        changeImage(index);
+        setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+        setActiveImage(images[currentIndex === images.length - 1 ? 0 : currentIndex + 1].url);
+    };
+
+    const handleThumbnailClick = (index) => {
+        setCurrentIndex(index);
+        setActiveImage(images[index].url);
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* 🌟 MAIN DISPLAY */}
-            <div className="relative aspect-square bg-white rounded-2xl overflow-hidden group shadow-sm border border-gray-100">
-                <div className={`w-full h-full transition-all duration-300 ease-in-out ${isFading ? 'opacity-40 scale-95' : 'opacity-100 scale-100'}`}>
-                    <LazyLoadImage
-                        src={activeImage || images[0].url}
-                        alt={productName}
-                        effect="blur"
-                        // 'object-contain' is pro for electronics/shoes, 'object-cover' for clothes. 
-                        // Added 'hover:scale-110' for that premium zoom effect.
-                        className="w-full h-full object-contain p-6 transition-transform duration-700 hover:scale-110 cursor-zoom-in"
-                        onError={(e) => (e.target.src = DEFAULT_IMAGE)}
-                    />
-                </div>
-
-                {/* PRO Navigation Arrows */}
+        <div className="relative">
+            <div className="aspect-square bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200 relative group">
+                <LazyLoadImage
+                    src={activeImage || images[0].url}
+                    alt={productName || "Product Main Image"}
+                    effect="blur"
+                    className="w-full h-full object-contain p-4 transition duration-300"
+                    onError={(e) => (e.target.src = DEFAULT_IMAGE)}
+                />
                 {images.length > 1 && (
-                    <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <>
                         <button
-                            onClick={(e) => { e.preventDefault(); handlePrev(); }}
-                            className="pointer-events-auto bg-white/90 backdrop-blur-md hover:bg-black hover:text-white text-gray-800 rounded-full p-3 shadow-xl transition-all"
+                            onClick={handlePrev}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
+                            aria-label="Previous image"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
                         <button
-                            onClick={(e) => { e.preventDefault(); handleNext(); }}
-                            className="pointer-events-auto bg-white/90 backdrop-blur-md hover:bg-black hover:text-white text-gray-800 rounded-full p-3 shadow-xl transition-all"
+                            onClick={handleNext}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
+                            aria-label="Next image"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
-                    </div>
+                    </>
                 )}
             </div>
-
-            {/* 🌟 THUMBNAILS LIST */}
             {images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto py-2 scrollbar-hide">
-                    {images.map((img, index) => (
-                        <button
-                            key={index}
-                            onClick={() => changeImage(index)}
-                            className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 ${
-                                currentIndex === index
-                                    ? "ring-2 ring-indigo-600 ring-offset-2 opacity-100 shadow-md"
-                                    : "opacity-60 hover:opacity-100 border border-gray-100"
-                            }`}
-                        >
-                            <img
-                                src={img.url}
-                                alt="thumbnail"
-                                className="w-full h-full object-cover"
-                            />
-                            {/* Subtle dark overlay on inactive thumbnails */}
-                            {currentIndex !== index && <div className="absolute inset-0 bg-gray-900/5 hover:bg-transparent transition-colors" />}
-                        </button>
-                    ))}
+                <div className="mt-6">
+                    <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+                        {images.map((img, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleThumbnailClick(index)}
+                                aria-label={`View image ${index + 1}`}
+                                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition duration-200 ${
+                                    currentIndex === index
+                                        ? "border-indigo-500 ring-2 ring-indigo-300"
+                                        : "border-gray-200 hover:border-gray-400"
+                                }`}
+                            >
+                                <LazyLoadImage
+                                    src={img.url}
+                                    alt={`Thumbnail ${index + 1} of ${productName}`}
+                                    className="w-full h-full object-cover"
+                                    effect="blur"
+                                />
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
