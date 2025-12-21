@@ -116,4 +116,3 @@ const ProductCard = ({ product, isPublic }) => {
 
 export default ProductCard;
 
-blur
