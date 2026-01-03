@@ -88,7 +88,7 @@ export default function Contact() {
                         </div>
                         
                         {/* Contact Form */}
-                        <div className="bg-white rounded-xl shadow-sm overflow-hidden p-8 md:p-12">
+                        {/* <div className="bg-white rounded-xl shadow-sm overflow-hidden p-8 md:p-12">
                             <h2 className="text-2xl font-medium text-gray-900 mb-8">Send us a Message</h2>
                             
                             <form className="space-y-6">
@@ -151,7 +151,7 @@ export default function Contact() {
                                     Send Message
                                 </button>
                             </form>
-                        </div>
+                        </div> */}
                     </div>
                     
                     {/* Additional Information */}
