@@ -6,7 +6,6 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { createOrder } from "../api/ordersApi";
 
-
 const formatCurrency = (amount) =>
   `${(amount || 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -14,7 +13,7 @@ const formatCurrency = (amount) =>
   })} DH`;
 
 const getProductImage = (img) => {
-  if (!img) return "/placeholder.png"; 
+  if (!img) return "/placeholder.png";
   if (img.startsWith("http")) return img;
   return `${process.env.REACT_APP_API_URL || ""}${img.startsWith("/") ? "" : "/"}${img}`;
 };
@@ -36,8 +35,8 @@ export default function Checkout() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [focusedInput, setFocusedInput] = useState("");
-  const [isNavigating, setIsNavigating] = useState(false); 
-  
+  const [isNavigating, setIsNavigating] = useState(false);
+
   const [fieldErrors, setFieldErrors] = useState({
     customerName: false,
     customerEmail: false,
@@ -58,7 +57,7 @@ export default function Checkout() {
     const { name, value } = e.target;
     setCheckoutInfo((prev) => ({ ...prev, [name]: value }));
     setError("");
-    
+
     if (fieldErrors[name]) {
       setFieldErrors(prev => ({ ...prev, [name]: false }));
     }
@@ -69,8 +68,8 @@ export default function Checkout() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[\+]?[0-9][0-9\s\-]{7,15}$/;
     const cityRegex = /^[a-zA-Z\s]+$/;
-    const addressRegex = /^[a-zA-Z0-9\s,.-]+$/; // Slightly relaxed for common address chars
-    
+    const addressRegex = /^[a-zA-Z0-9\s,.-]+$/;
+
     const newFieldErrors = {
       customerName: !checkoutInfo.customerName.trim() || !nameRegex.test(checkoutInfo.customerName),
       customerEmail: !checkoutInfo.customerEmail.trim() || !emailRegex.test(checkoutInfo.customerEmail),
@@ -78,7 +77,7 @@ export default function Checkout() {
       city: !checkoutInfo.city.trim() || !cityRegex.test(checkoutInfo.city),
       customerAddress: !checkoutInfo.customerAddress.trim() || !addressRegex.test(checkoutInfo.customerAddress)
     };
-    
+
     setFieldErrors(newFieldErrors);
 
     if (newFieldErrors.customerName) return "Enter a valid full name.";
@@ -107,38 +106,44 @@ export default function Checkout() {
         products: cartItems,
       };
 
+      // 1. Send data to your Spring Boot API
       await createOrder(payload);
-      
+
+      // 2. Prepare data for the confirmation screen
       const orderDetails = {
         ...checkoutInfo,
         orderNumber: Math.floor(Math.random() * 1000000),
         total: cartTotal,
         date: new Date().toISOString()
       };
-      
+
       setIsNavigating(true);
       
+      // 3. Add a small "slow" delay (1000ms) for better UX feel
       setTimeout(() => {
         setSuccess(true);
-        navigate('/confirmation', { 
+        navigate('/confirmation', {
           state: { orderDetails },
-          replace: true 
+          replace: true
         });
+        
+        // Clear cart after a tiny delay to ensure navigation state is captured
         setTimeout(() => {
           clearCart();
         }, 100);
-      }, 1500);
+      }, 1000);
+
     } catch (err) {
       console.error(err);
       setError("Failed to create order. Please try again.");
       setIsNavigating(false);
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
-};
+  };
 
   if (!cartItems || cartItems.length === 0) {
     if (isNavigating) {
-      return null; 
+      return null;
     }
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -153,7 +158,6 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navbar />
-
       <main className="container mx-auto px-4 md:px-8 py-10 md:py-16">
         <div className="mb-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">Checkout</h1>
@@ -172,7 +176,7 @@ export default function Checkout() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">Order Summary</h2>
               </div>
-              
+
               <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
@@ -191,13 +195,12 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-bold text-gray-900 mb-4">
                   <span>Total</span>
                   <span>{formatCurrency(cartTotal)}</span>
                 </div>
-                
                 <div className="bg-indigo-50 p-4 rounded-xl mb-4">
                   <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -221,7 +224,7 @@ export default function Checkout() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">Customer Information</h2>
               </div>
-              
+
               {error && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -348,7 +351,7 @@ export default function Checkout() {
                   Payment Method
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div 
+                  <div
                     className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${checkoutInfo.paymentMethod === 'COD' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-gray-300'}`}
                     onClick={() => setCheckoutInfo(prev => ({ ...prev, paymentMethod: 'COD' }))}
                   >
@@ -362,16 +365,6 @@ export default function Checkout() {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* <div className="border-2 border-gray-200 rounded-xl p-4 opacity-50 cursor-not-allowed">
-                    <div className="flex items-center">
-                      <div className="w-5 h-5 rounded-full border-2 mr-3 border-gray-400"></div>
-                      <div>
-                        <p className="font-medium">Credit/Debit Card</p>
-                        <p className="text-xs text-gray-500">Coming soon</p>
-                      </div>
-                    </div>
-                  </div> */}
                 </div>
               </div>
 
@@ -402,7 +395,7 @@ export default function Checkout() {
                   </>
                 )}
               </button>
-              
+
               <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -413,7 +406,6 @@ export default function Checkout() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
